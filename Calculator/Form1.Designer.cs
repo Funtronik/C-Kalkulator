@@ -62,10 +62,14 @@
             this.textBox1.ForeColor = System.Drawing.SystemColors.MenuText;
             this.textBox1.Location = new System.Drawing.Point(12, 58);
             this.textBox1.Name = "textBox1";
+            this.textBox1.ReadOnly = true;
+            this.textBox1.ShortcutsEnabled = false;
             this.textBox1.Size = new System.Drawing.Size(260, 40);
             this.textBox1.TabIndex = 0;
+            this.textBox1.TabStop = false;
             this.textBox1.Text = "0";
             this.textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textBox1.WordWrap = false;
             // 
             // button1
             // 
@@ -316,7 +320,7 @@
             this.button23.BackColor = System.Drawing.SystemColors.ControlLight;
             this.button23.FlatAppearance.BorderSize = 0;
             this.button23.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button23.Location = new System.Drawing.Point(12, 58);
+            this.button23.Location = new System.Drawing.Point(13, 58);
             this.button23.Name = "button23";
             this.button23.Size = new System.Drawing.Size(95, 23);
             this.button23.TabIndex = 24;

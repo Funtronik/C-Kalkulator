@@ -10,10 +10,11 @@ namespace Calculator
     class Operations
     {
         public TextBox parentTextBox;
+        public Button parentMenuButton;
         
-        static public Dictionary<Button, string> PrepareDictionary(Control callForm)
+        static public Dictionary<String, string> PrepareDictionary(Control callForm)
         {
-            var returnDictionary = new Dictionary<Button, string>();
+            var returnDictionary = new Dictionary<String, string>();
             var controlsList = new List<Control>();
 
             void GetAllControl(Control c, List<Control> list)
@@ -37,7 +38,7 @@ namespace Calculator
                     int parsableInt;
                     if (int.TryParse(control.Text.ToString(), out parsableInt))
                     {
-                        returnDictionary.Add((Button)control, parsableInt.ToString());
+                        operators = parsableInt.ToString();
                     }
                     else
                         switch (control.Text.ToString())
@@ -103,9 +104,15 @@ namespace Calculator
                                     operators = "menu";
                                     break;
                                 }
+                            case "History":
+                                {
+                                    operators = "history";
+                                    break;
+                                }
                                 //(     Button    ,      Operacja buttona     )
-                                returnDictionary.Add((Button)control, operators);
+                                
                         }
+                    returnDictionary.Add(control.Text, operators);
                 }
             }
             return returnDictionary;
@@ -113,14 +120,15 @@ namespace Calculator
 
         public void whatToDo(string Operation)
         {
-           // this.parentTextBox.Text = "udało się";
+            if (Operation != "menu") parentMenuButton.Visible = false;
             switch (Operation)
             {
                 case "menu":
                     {
-
+                        if (!parentMenuButton.Visible) parentMenuButton.Visible = true; else parentMenuButton.Visible = false;
                         break;
                     }
+                case 
             }
         }
     }
