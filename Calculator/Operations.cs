@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,18 +15,21 @@ namespace Calculator
         public Button parentMenuButton;
         private float wynik = 0;
         private string operacje = "";
+        private bool hitCE = false;
         private string[] historia;
-        bool needRefreshness = false;
-
-        public void whatToDo(string Operation,bool refresh)
+        int operationscount = 0;
+        public void whatToDo(string Operation)
         {
+            
+            if (hitCE)
+            {
+                OperacjeMenu("CE");
+                hitCE = false;
+            }
+
             if (Operation != "∴" && parentMenuButton.Visible == true) parentMenuButton.Visible = false;
 
-            if (refresh || needRefreshness)
-            {
-                needRefreshness = false;
-                whatToDo("CE", false);
-            }
+            if (OperacjeMenu(Operation)) return;
 
             int parsableInt;
             if (int.TryParse(Operation, out parsableInt))
@@ -36,122 +39,167 @@ namespace Calculator
                     if (parentTextBox1.Text == "0") parentTextBox1.Text = "";
                     parentTextBox1.Text += Operation;
                 }
+                return;
             }
 
-            if (operacje == "")
+            operationscount++;
+            var tempstring = " ";
+            if (parentTextBox2.Text == "")
             {
-                wynik = 
-                operacje += 
+                wynik = float.Parse(parentTextBox1.Text);
+                operacje = wynik.ToString();
+                if (Operation == "√")
+                {
+                    OperacjeArytmetyczne("√", 0);
+                    return;
+                }
+                if (operationscount > 0) tempstring = " " + Operation + " ";// spacja
+                else tempstring = " " + Operation;// spacja
+
+                operacje += tempstring;
             }
-            //reszta normalnie jako operacje
+            else
+            {
+                if (operacje.Substring(operacje.Length - 1, 1) != " ") operacje += " ";
+                if (parentTextBox1.Text == "") { tempstring = "0" + " " + Operation; }
+                else if (Operation == "=") tempstring = parentTextBox1.Text + " " + Operation;
+                else
+                {
+                    tempstring = parentTextBox1.Text + " " + Operation;
+                }
+                
+                operacje += tempstring;
+                obliczanieWyniku();
+            }
+            if (Operation != "=") aktualizacja("operant");
+        }
+        private void obliczanieWyniku()
+        {
+
+            var spaceCount = operacje.Split(' ');
+            wynik = float.Parse(spaceCount[0]);
+            float tempParsable = 0;
+            bool liczbaJest = false;
+            bool operantJest = false;
+            string operantDoPrzekazania = "";
+            float liczbaDoPrzekazania = 0;
+
+            for (int i = 1; i < spaceCount.Length; i++)
+            {
+                var pobrane = spaceCount[i].ToString();
+
+                    if (float.TryParse(pobrane, out tempParsable))
+                    {
+                        liczbaDoPrzekazania = tempParsable;
+                        liczbaJest = true;
+                    }
+                    else
+                    {
+                        operantDoPrzekazania = pobrane;
+                        if (operantDoPrzekazania == "=") OperacjeArytmetyczne("=", 0);
+                        else
+                        {
+                        operantJest = true;
+                        }
+                    }
+                if (liczbaJest && operantJest)
+                {
+                    OperacjeArytmetyczne(operantDoPrzekazania, liczbaDoPrzekazania);
+                    operantJest = false;
+                    liczbaJest = false;
+                }
+            }
+        }
+        private bool OperacjeMenu(string Operation)
+        {
+
             switch (Operation)
             {
                 case "∴":
                     {
                         if (!parentMenuButton.Visible) parentMenuButton.Visible = true; else parentMenuButton.Visible = false;
-                        break;
+                        return true;
                     }
                 case ",":
                     {
                         if (parentTextBox1.Text != "" && parentTextBox1.Text.Length < 9)
                             parentTextBox1.Text = parentTextBox1.Text.ToString() + ",";
-                        break;
-                    }
-                case "+":
-                    {
-                        if (parentTextBox1.Text != "")
-                        {
-                            wynik += float.Parse(parentTextBox1.Text);
-                            operacje += parentTextBox1.Text + " + ";
-                            aktualizacja("operant");
-                        }
-                        break;
-                    }
-                case "-":
-                    {
-                        if (parentTextBox2.Text != "")
-                        {
-                            wynik -= float.Parse(parentTextBox1.Text);
-                            operacje += parentTextBox1.Text + " - ";
-                            aktualizacja("operant");
-                        }
-                        else
-                        {
-                            clearWynik();
-                        }
-                        break;
-                    }
-                case "X":
-                    {
-                        if (parentTextBox2.Text != "")
-                        {
-                            wynik *= float.Parse(parentTextBox1.Text);
-                            operacje += parentTextBox1.Text + " X ";
-                            aktualizacja("operant");
-                        }
-                        else
-                        {
-                            clearWynik();
-                        }
-                        break;
-                    }
-                case "=":
-                    {
-                        if (parentTextBox1.Text != "")
-                        {
-                            var sign = operacje.Substring(operacje.Length - 2, 1);
-                            whatToDo(sign,false);
-                            operacje = operacje.Substring(0, operacje.Length - 2);
-                            parentTextBox1.Text = wynik.ToString();
-                        }
-                        aktualizacja("equals");
-                        needRefreshness = true;
-                        break;
-                    }
-                case "%":
-                    {
-                        wynik %= float.Parse(parentTextBox1.Text);
-                        operacje += parentTextBox1.Text + " % ";
-                        aktualizacja("operant");
-                        break;
-                    }
-                case "÷":
-                    {
-                        wynik /= float.Parse(parentTextBox1.Text);
-                        operacje += parentTextBox1.Text + " ÷ ";
-                        aktualizacja("operant");
-                        break;
+                        return true;
                     }
                 case "<x":
                     {
                         if (parentTextBox1.Text.Length > 0)
                             parentTextBox1.Text = parentTextBox1.Text.Substring(0, parentTextBox1.Text.Length - 1);
-                        break;
+                        return true;
                     }
                 case "C":
                     {
                         aktualizacja("softclear");
-                        break;
+                        return true;
                     }
                 case "CE":
                     {
                         aktualizacja("hardclear");
-                        break;
-                    }
-
-                case "√":
-                    {
-                        double buff = double.Parse(parentTextBox1.Text);
-                        double sqrt = Math.Sqrt(buff);
-                        wynik = float.Parse(sqrt.ToString());
-                        operacje += parentTextBox1.Text + " √ ";
-                        aktualizacja("equals");
-                        needRefreshness = true;
-                        break;
+                        return true;
                     }
                 case "History":
                     {
 
+                        return true;
+                    }
+                default:
+                    {
+                        return false;
+                    }
+            }
+
+        }
+
+        private void OperacjeArytmetyczne(string Operation, float wartoscOperacji)
+        {
+            //reszta normalnie jako operacje
+            switch (Operation)
+            {
+                case "+":
+                    {
+                        wynik += wartoscOperacji;
+                        break;
+                    }
+                case "-":
+                    {
+                        wynik -= wartoscOperacji;
+                        break;
+                    }
+                case "X":
+                    {
+                        wynik *= wartoscOperacji;
+                        break;
+                    }
+                case "=":
+                    {
+                        parentTextBox2.Text = operacje;
+                        parentTextBox1.Text = wynik.ToString();
+                        wynik = 0;
+                        hitCE = true;
+                        break;
+                    }
+                case "%":
+                    {
+                        break;
+                    }
+                case "÷":
+                    {
+                        wynik /= wartoscOperacji;
+                        break;
+                    }
+                case "√":
+                    {
+                        double tempwynik = double.Parse(wynik.ToString());
+                        tempwynik = Math.Sqrt(tempwynik);
+                        wynik = float.Parse(tempwynik.ToString());
+                        parentTextBox2.Text = operacje;
+                        parentTextBox1.Text = wynik.ToString();
+                        hitCE = true;
                         break;
                     }
             }
@@ -172,19 +220,9 @@ namespace Calculator
                 parentTextBox1.Text = "0";
                 parentTextBox2.Clear();
                 operacje = "";
+                operationscount = 0;
                 wynik = 0;
             }
-            else if (co == "equals")
-            {
-                operacje += " =";
-                parentTextBox2.Text = operacje;
-                parentTextBox1.Text = wynik.ToString();
-                wynik = 0;
-            }
-        }
-        void clearWynik()
-        {
-            wynik = float.Parse(parentTextBox1.Text);
         }
     }
 }
