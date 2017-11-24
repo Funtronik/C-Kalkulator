@@ -13,6 +13,7 @@ namespace Calculator
     public partial class Form1 : Form
     {
         Operations Operations = new Operations();
+       
         public Form1()
         {
             InitializeComponent();
@@ -24,12 +25,8 @@ namespace Calculator
         private void button_Click(object sender, EventArgs e)
         {
             Button btnPressed = (Button)sender;
-                Operations.whatToDo(btnPressed.Text.ToString(),false);
+                Operations.whatToDo(btnPressed.Text.ToString());
         }
 
-        private void button23_Click(object sender, EventArgs e)
-        {
-            button23.Visible = false;
-        }
     }
 }

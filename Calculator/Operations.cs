@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace Calculator
 {
-    class Operations
+    class Operations : History
     {
         public TextBox parentTextBox1;
         public TextBox parentTextBox2;
@@ -16,20 +16,18 @@ namespace Calculator
         private float wynik = 0;
         private string operacje = "";
         private bool hitCE = false;
-        private string[] historia;
         int operationscount = 0;
         public void whatToDo(string Operation)
         {
-            
+
+            if (Operation != "∴" && parentMenuButton.Visible == true) parentMenuButton.Visible = false;
+
+            if (OperacjeMenu(Operation)) return;
             if (hitCE)
             {
                 OperacjeMenu("CE");
                 hitCE = false;
             }
-
-            if (Operation != "∴" && parentMenuButton.Visible == true) parentMenuButton.Visible = false;
-
-            if (OperacjeMenu(Operation)) return;
 
             int parsableInt;
             if (int.TryParse(Operation, out parsableInt))
@@ -144,7 +142,10 @@ namespace Calculator
                     }
                 case "History":
                     {
-
+                                 History history = new History();
+                                 history.historia = operacje.Split(' ');
+                                 history.show();
+                                 history.Show();
                         return true;
                     }
                 default:

@@ -328,7 +328,7 @@
             this.button23.Text = "History";
             this.button23.UseVisualStyleBackColor = false;
             this.button23.Visible = false;
-            this.button23.Click += new System.EventHandler(this.button23_Click);
+            this.button23.Click += new System.EventHandler(this.button_Click);
             // 
             // textBox2
             // 
